@@ -1,0 +1,17 @@
+{
+  "name": "bot_js",
+  "version": "1.0.0",
+  "description": "this",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "fs": "^0.0.1-security",
+    "telegraf": "^4.16.3"
+  }
+}
