@@ -6,7 +6,7 @@
     const url = 'http://localhost:3000/metrics'
     const url_ultimo = 'http://localhost:3000/metrics/last'
     const semana = 'http://localhost:3000/metrics/2024/12/4?is-week=true'
-    const url_image = '';
+    const url_image = 'http://localhost:3000/images/2024-05-06T02_13_21.450174953Z.png';
 
 
 
@@ -21,7 +21,8 @@
         '\nsi quieres consultal informacion basica de la orquidea use /info'+
         '\n/ultima_imagen'+
         '\n/year' + 
-        '\n/dia';
+        '\n/dia'+
+        '\n/pendientes';
         ctx.reply(mensaje_help);
     })
 
@@ -140,20 +141,26 @@
 
     bot.command('ultima_imagen',async(ctx) =>{
         try {
-            const last = await obtenerUltimaImagen
-            const imageData = last.data
-            let pie = ''
-            if(imageData.length > 0){
-                const T = imageData[0].type
-                const D = imageData[0].descriptions
-                 pie = ('El tipo es: ' + JSON.stringify(T) + 
-                '\nLa descripcion es: ' + JSON.stringify(D))
-            }else{
-                ctx.reply('no se encontraron datos')
+            const lastUrl = 'http://localhost:3000/images/last';
+    
+            // Realizar la solicitud HTTP para obtener los datos de la última imagen
+            const response = await axios.get(lastUrl);
+            const imageData = response.data[0];
+    
+            // Verificar si se encontraron datos de imagen
+            if (imageData) {
+                // Acceder a las propiedades type y description directamente
+                const T = imageData.type;
+                const D = imageData.description;
+                console.log(T,D)
+                const pie = 'El tipo es: ' + T +
+                            '\nLa descripción es: ' + D;
+    
+                // Enviar la última imagen con su descripción
+                await ctx.replyWithPhoto({ url: url_image }, { caption: pie });
+            } else {
+                ctx.reply('No se encontraron datos de imagen');
             }
-
-            await ctx.replyWithPhoto({ url: url_image }, {caption: pie});
-
         } catch (error) {
             console.error('Error al solicitar la imagen:', error);
             ctx.reply('No se pudo obtener la imagen');
@@ -228,6 +235,33 @@
         }
     })
 
+    bot.command('pendientes',async(ctx) => {
+        try {
+            const pendingUrl = 'http://localhost:3000/images/pending';
+    
+            // Realizar la solicitud HTTP para obtener los datos de las imágenes pendientes
+            const response = await axios.get(pendingUrl);
+            const imageDataArray = response.data;
+    
+            console.log('Datos de imágenes pendientes:', JSON.stringify(imageDataArray));
+    
+            // Verificar si se encontraron datos de imágenes pendientes
+            if (imageDataArray && imageDataArray.length > 0) {
+                console.log('Iterando sobre los datos de imágenes pendientes...');
+                // Iterar sobre cada objeto JSON y enviarlo como mensaje
+                imageDataArray.forEach((imageData, index) => {
+                    const message = `Imagen ${index + 1}:\n${JSON.stringify(imageData, null, 2)}`;
+                    ctx.reply(message);
+                });
+            } else {
+                console.log('No se encontraron imágenes pendientes');
+                ctx.reply('No se encontraron imágenes pendientes');
+            }
+        } catch (error) {
+            console.error('Error al obtener las imágenes pendientes:', error);
+            ctx.reply('No se pudieron obtener las imágenes pendientes');
+        }
+    })
 
    
     bot.launch();
