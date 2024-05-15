@@ -21,7 +21,7 @@
         '\nsi quieres consultal informacion basica de la orquidea use /info'+
         '\n/ultima_imagen'+
         '\n/year' + 
-        '\n/dia'+
+        '\n/dia El dormato se manda con el año, mes y dia, ejemplo:(2024/10/12)'+
         '\n/pendientes';
         ctx.reply(mensaje_help);
     })
@@ -140,30 +140,16 @@
 
 
     bot.command('ultima_imagen',async(ctx) =>{
-        try {
-            const lastUrl = 'http://localhost:3000/images/last';
-    
-            // Realizar la solicitud HTTP para obtener los datos de la última imagen
-            const response = await axios.get(lastUrl);
-            const imageData = response.data[0];
-    
-            // Verificar si se encontraron datos de imagen
-            if (imageData) {
-                // Acceder a las propiedades type y description directamente
-                const T = imageData.type;
-                const D = imageData.description;
-                console.log(T,D)
-                const pie = 'El tipo es: ' + T +
-                            '\nLa descripción es: ' + D;
-    
-                // Enviar la última imagen con su descripción
-                await ctx.replyWithPhoto({ url: url_image }, { caption: pie });
-            } else {
-                ctx.reply('No se encontraron datos de imagen');
-            }
-        } catch (error) {
-            console.error('Error al solicitar la imagen:', error);
-            ctx.reply('No se pudo obtener la imagen');
+        try{
+            await axios.get(url_image)
+            .then((response) => {
+                console.log(response.data[0].url)
+                const u = 'http://localhost:3000/images/${response.data[0].url'
+                ctx.replyWithPhoto(u)
+            })
+        }catch(error){
+            console.log('error: ',error)
+            ctx.reply('no se pudo encontrar la imagen')
         }
     })
 
@@ -228,6 +214,7 @@
             const formattedMessage = `Valores de humedad para el día ${year}-${month}-${day}: ${humidities.join(', ')}%`;
     
             // Enviar el mensaje formateado como respuesta al usuario
+            console.log(formattedMessage,JSON.stringify(humidities))
             ctx.reply(formattedMessage);
         } catch (error) {
             console.error('Error al obtener los datos:', error);
@@ -248,7 +235,7 @@
             // Verificar si se encontraron datos de imágenes pendientes
             if (imageDataArray && imageDataArray.length > 0) {
                 console.log('Iterando sobre los datos de imágenes pendientes...');
-                // Iterar sobre cada objeto JSON y enviarlo como mensaje
+                // Iterar sobre cada objeto JSO N y enviarlo como mensaje
                 imageDataArray.forEach((imageData, index) => {
                     const message = `Imagen ${index + 1}:\n${JSON.stringify(imageData, null, 2)}`;
                     ctx.reply(message);
@@ -263,5 +250,6 @@
         }
     })
 
+    
    
     bot.launch();
