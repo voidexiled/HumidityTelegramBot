@@ -2,16 +2,17 @@
   "name": "bot_js",
   "version": "1.0.0",
   "description": "this",
-  "main": "main.js",
-  "type": "module",
+  "main": "main.ts",
   "scripts": {
-    "dev": "node main.js"
+    "dev": "ts-node main.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/node": "^20.12.12",
     "axios": "^1.6.8",
-    "fs": "^0.0.1-security",
-    "telegraf": "^4.16.3"
+    "telegraf": "^4.16.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
