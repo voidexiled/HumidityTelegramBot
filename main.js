@@ -3,6 +3,9 @@
     import { rejects } from "assert";
     import fs from "fs";
     const bot = new Telegraf('7126641311:AAHEiEza9UQXQbBVdfzRs7ltEjE31qGR68E');
+    const url_servidor = 'http://localhost:3000/'
+    const url_last_image = url_servidor + 'images/last'
+    const url_images = url_servidor + 'images/'
     const url = 'http://localhost:3000/metrics'
     const url_ultimo = 'http://localhost:3000/metrics/last'
     const semana = 'http://localhost:3000/metrics/2024/12/4?is-week=true'
@@ -141,11 +144,22 @@
 
     bot.command('ultima_imagen',async(ctx) =>{
         try{
-            await axios.get(url_image)
-            .then((response) => {
-                console.log(response.data[0].url)
-                const u = 'http://localhost:3000/images/${response.data[0].url'
-                ctx.replyWithPhoto(u)
+	    // Recuperamos la información de la ultima imagen
+            await axios.get(url_last_image) .then((response) => {
+		// Utilizamos el URL de la ultima imagen para formar el URL de la imagen en el servidor
+                const last_image_url = url_images + response.data[0].url
+
+		// Como no podemos usar el puro URL, porque telegram necesita acceso a la imagen
+		// Lo que podemos hacer es guardar la imagen localmente
+		// La vamos a guardar como 'tmp.png'
+		const file = fs.createWriteStream("tmp.png");
+		axios.get(last_image_url, {responseType: 'stream'}).then((response) => {
+		    response.data.pipe(file)
+		})
+
+		// Una vez guardamos la imagen localmente, la enviamos al chat
+		ctx.replyWithPhoto({ source: fs.readFileSync('tmp.png') });
+		
             })
         }catch(error){
             console.log('error: ',error)
